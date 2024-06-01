@@ -99,7 +99,7 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: config.sheetId,
-    range: `'${school}'!A${startRow}:AP${endRow}`,
+    range: `'${school}'!A${startRow}:AW${endRow}`,
   });
 
 

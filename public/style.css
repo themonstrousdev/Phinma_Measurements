@@ -2,3 +2,13 @@ ul {
     list-style-type: none;
     margin: 0;
 }
+
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.custom-pagination .page-item:not(.disabeled) {
+    cursor: pointer;
+}

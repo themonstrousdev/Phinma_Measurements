@@ -59,6 +59,11 @@ router.get('/', async (req, res)=> {
   let currentSchool = null;
   let data = null;
   let headers = null;
+  let page = 1;
+  let date = null;
+  let totalPages = 1;
+  let pages = [];
+  let searchValue = null;
   if(schools.length > 0) {
     if(req.query.school) {
       currentSchool = req.query.school;
@@ -66,13 +71,43 @@ router.get('/', async (req, res)=> {
       currentSchool = schools[0];
     }
 
-    data = await getData(currentSchool);
+    if(req.query.page) {
+      page = req.query.page;
+    }
 
-    headers = Object.keys(data[0]);
+    if(req.query.date) {
+      date = req.query.date;
+    }
+
+    if(req.query.search) {
+      searchValue = req.query.search;
+    }
+
+    let sheetData = await getData(currentSchool, page, date, searchValue);
+
+    headers = sheetData.headers;
     // get headers from 1 - 9
     headers = headers.slice(1, 10);
+    data = sheetData.data;
+    totalPages = sheetData.totalPages;
+
+    // create pages array from totalPages
+    for(let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+
+    // get middle 5 pages
+    if(page > 3) {
+      if(page + 2 <= totalPages) {
+        pages = pages.slice(page - 3, page + 2);
+      } else {
+        pages = pages.slice(totalPages - 5, totalPages);
+      }
+    } else {
+      pages = pages.slice(0, 5);
+    }
   }
-  res.render('index', {schools: schools, currentSchool: currentSchool, data: data, headers: headers, measurements: measurements});
+  res.render('index', {schools: schools, currentSchool: currentSchool, data: data, headers: headers, measurements: measurements, page: page, totalPages: totalPages, pages, date: date, wordSearch: searchValue });
 })
 
 router.post('/addSchool', jsonParser, async (req, res) => {

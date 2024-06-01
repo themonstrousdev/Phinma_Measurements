@@ -74,24 +74,92 @@ async function authorize() {
  * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-async function listMajors(auth, school) {
+async function listMajors(auth, school, page = 1, date = null, search = null) {
+  const orders = 15;
+  let startRow = 2 + (page - 1) * orders;
+  let endRow = startRow + orders - 1;
+
+  if(date) {
+    startRow = 2;
+    endRow = "";
+    let dateString = new Date(date);
+    let month = dateString.getMonth() + 1;
+    let day = dateString.getDate();
+    let year = dateString.getFullYear();
+
+    date = `${month}/${day}/${year}`;
+  }
+
+  if(search) {
+    startRow = 2;
+    endRow = "";
+  }
+
+
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: config.sheetId,
-    range: `'${school}'!A1:AP`,
+    range: `'${school}'!A${startRow}:AP${endRow}`,
   });
+
+
+  if(date) {
+    // find the orders based on page
+    let orderRows = res.data.values;
+    orderRows = orderRows.filter(row => row[0].includes(date));
+    let start = (page - 1) * orders;
+    let end = start + orders - 1;
+
+    res.data.values = orderRows.slice(start - 2, end + 1);
+  }
+
+  if(search) {
+    let orderRows = res.data.values;
+    orderRows = orderRows.filter(row => row.some(cell => cell.toLowerCase().includes(search.toLowerCase())));
+    let start = (page - 1) * orders;
+    let end = start + orders - 1;
+
+    res.data.values = orderRows.slice(start - 2, end + 1);
+  }
+
+
+  let headers = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.sheetId,
+    range: `'${school}'!1:1`,
+  });
+
+  headers = headers.data.values[0];
+
   const rows = res.data.values;
   if (!rows || rows.length === 0) {
     console.log('No data found.');
     return;
   }
 
+  let totalRows = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.sheetId,
+    range: `'${school}'!A:A`,
+  });
+
+
+  totalRows = totalRows.data.values;
+
+  if(date) {
+    totalRows = totalRows.filter(row => row[0].includes(date));
+  }
+
+  if(search) {
+    totalRows = totalRows.filter(row => row.some(cell => cell.toLowerCase().includes(search.toLowerCase())));
+  }
+
+  totalRows = totalRows.length - 1;
+
+  let totalPages = Math.ceil(totalRows / orders);
+
   let data = [];
   
   // get headers from first row
   // remove first row from rows
-  let headers = rows[0];
-  rows.shift();
 
   // remove all trailing spaces from headers
   headers = headers.map(header => header.trim());
@@ -108,6 +176,16 @@ async function listMajors(auth, school) {
   headers[headers.indexOf('Other Remarks')] = 'Other Remarks (Skirt)';
   headers[headers.indexOf('for Senior High, strand')] = 'Strand';
 
+  // find header that says sleeve length
+  // rename it to just "Sleeve Length"
+  let sleeveLengthIndex = headers.findIndex(header => header.toLowerCase().includes("sleeve length"));
+  headers[sleeveLengthIndex] = "Sleeve Length";
+
+  // find header that starts with "BL"
+  // rename it to just "BL"
+  let blIndex = headers.findIndex(header => header.startsWith("BL"));
+  headers[blIndex] = "BL";
+
   // get data from rest of rows
   // make each row an object with key from headers
   rows.forEach(row => {
@@ -118,13 +196,13 @@ async function listMajors(auth, school) {
     data.push(obj);
   });
 
-  return data;
+  return {data, headers, totalPages};
 }
 
-const getData =  async function(school) {
+const getData =  async function(school, page, date) {
   let data = null;
   await authorize().then(async auth => {
-    data = await listMajors(auth, school)
+    data = await listMajors(auth, school, page, date)
   }).catch(console.error);
 
   return data;

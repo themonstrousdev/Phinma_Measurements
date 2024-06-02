@@ -6,6 +6,9 @@ schoolForm.addEventListener('submit', async (event) => {
   // get form data
   const school = document.getElementById('newSchoolInput').value.trim();
 
+  const loadingScreen = document.getElementById('loading-screen');
+  loadingScreen.classList.add('show');
+
   fetch('/addSchool', {
     method: 'POST',
     headers: {
@@ -16,7 +19,9 @@ schoolForm.addEventListener('submit', async (event) => {
   .then(res => {
     if(res.status == 200) {
       alert('School added!');
-      location.reload();
+      setTimeout(() => {
+        location.reload();
+      }, 1000);
     } else {
       alert('School already exists!');
     }
@@ -36,6 +41,9 @@ deleteForm.addEventListener('submit', async (event) => {
   // get form data
   const school = document.getElementById('deleteSchoolSelect').value;
 
+  const loadingScreen = document.getElementById('loading-screen');
+  loadingScreen.classList.add('show');
+
   fetch('/deleteSchool', {
     method: 'POST',
     headers: {
@@ -52,3 +60,24 @@ deleteForm.addEventListener('submit', async (event) => {
     }
   });
 });
+
+function finishOrder(school, row) {
+  const loadingScreen = document.getElementById('loading-screen');
+  loadingScreen.classList.add('show');
+  
+  fetch('/finishOrder', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({school: school, row: row})
+  })
+  .then(res => {
+    if(res.status == 200) {
+      alert('Order finished!');
+      location.reload();
+    } else {
+      alert('Error finishing order!');
+    }
+  });
+}

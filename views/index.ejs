@@ -50,119 +50,162 @@
     </div>
   </nav>
 
-  <div class="card mt-5 mx-5">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h1><%= currentSchool %> Orders</h1>
-      <div class="d-flex w-75 align-items-center justify-content-end">
-        <input type="date" class="form-control w-25" id="filterDate" placeholder="Date" aria-label="date" onchange="filterDate()" <% if (date) { %>value="<%= date %>" <% } %>>
-        <button type="button" class="btn btn-primary ms-3" onclick="window.href = '/<% if (currentSchool) { %>?school=<%= currentSchool %><% } %>'">Clear Date Filter</button>
-        <input type="text" class="form-control w-25 ms-3" id="filterSearch" placeholder="Search" aria-label="search" onenter="filterSearch()" <% if (date) { %> value="<%= wordSearch %>" <% } %>>
-        <button type="button" class="btn btn-primary ms-3" onclick="filterSearch()"><i class="bi-search"></i>Search</button>
+  <div id="content">
+    <div class="mt-5 ms-5 me-5 border rounded">
+      <div class="border-bottom p-3 mb-3 d-flex justify-content-between align-items-center">
+        <h1><%= currentSchool %> Orders</h1>
+        <div class="d-flex w-75 align-items-center justify-content-end">
+          <input type="date" class="form-control w-25" id="filterDate" placeholder="Date" aria-label="date" onchange="filterDate()" <% if (date) { %>value="<%= date %>" <% } %>>
+          <button type="button" class="btn btn-primary ms-3" onclick="window.href = '/<% if (currentSchool) { %>?school=<%= currentSchool %><% } %>'">Clear Date Filter</button>
+          <input type="text" class="form-control w-25 ms-3" id="filterSearch" placeholder="Search" aria-label="search" onenter="filterSearch()" <% if (date) { %> value="<%= wordSearch %>" <% } %>>
+          <button type="button" class="btn btn-primary ms-3" onclick="filterSearch()"><i class="bi-search"></i>Search</button>
+        </div>
       </div>
-    </div>
-    <div class="card-body">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <% headers.forEach(head => { %>
-              <th scope="col"><%= head %></th>
-            <% }) %>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% data.forEach((row, i) => { %>
+      <div class="p-4">
+        <% if (!data) { %>
+          <center><h5>No orders found</h5></center>
+        <% } else { %>
+        <table class="table table-striped">
+          <thead>
             <tr>
               <% headers.forEach(head => { %>
-                <td data-bs-toggle="collapse" data-bs-target="#row_<%= i %>"><%= row[head] %></td>
+                <th scope="col"><%= head %></th>
               <% }) %>
-              <td>
-                <button type="button" class="btn btn-primary" onclick="printOrder(<%= i %>)"><i class="bi-printer"></i> Print</button>
-                <div id="print_row_<%= i %>" style="position: absolute; pointer-events: none; opacity: 0;">
-                  <% if(row[headers[2]] == "Female") { %>
-                    <%- include('template/female.ejs', {row: row, headers: headers}) %>
-                  <% } else if(row[headers[2]] == "Male") { %>
-                    <%- include('template/male.ejs', {row: row, headers: headers}) %>
-                  <% } else { %>
-                    <%- include('template/other.ejs', {row: row, headers: headers}) %>
-                  <% } %>
-                </div>
-              </td>
+              <th scope="col"></th>
             </tr>
-            <tr>
-              <td colspan="9" class="">
-                <div id="row_<%= i %>" class="accordion-collapse collapse">
-                  <div class="accordion-body">
-                    <table class="table table-striped">
-                      <thead>
-                        <tr>
-                          <th scope="col">
-                            <% if(row[headers[2]] == "Female") { %>
-                              <h3>Blouse</h3>
-                            <% } else if (row[headers[2]] == "Male") { %>
-                              <h3>Polo</h3>
-                            <% } else { %>
-                              <h3>Top</h3>
-                            <% } %>
-                          </th>
-                          <th scope="col"><h3>Pants</h3></th>
-                          <% if(row[headers[2]] == "Female" || !row[headers[2]]) { %>
-                            <th scope="col"><h3>Skirt</h3></th>
-                          <% } %>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <ul>
-                              <% measurements.top.forEach(measure => { %>
-                                <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
-                              <% }) %>
-                            </ul>
-                          </td>
-                          <td>
-                            <ul>
-                              <% measurements.pants.forEach(measure => { %>
-                                <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
-                              <% }) %>
-                            </ul>
-                          </td>
-                          <% if(row[headers[2]] == "Female" || !row[headers[2]]) { %>
-                            <td>
-                              <ul>
-                                <% measurements.skirt.forEach(measure => { %>
-                                  <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
-                                <% }) %>
-                              </ul>
-                            </td>
-                          <% } %>
-                        </tr>
-                      </tbody>
-                    </table>
+          </thead>
+          <tbody>
+            <% data.forEach((row, i) => { %>
+              <tr>
+                <% headers.forEach(head => { %>
+                  <td data-bs-toggle="collapse" data-bs-target="#row_<%= i %>"><%= row[head] %></td>
+                <% }) %>
+                <td>
+                  <button type="button" class="btn btn-primary" onclick="printOrder(<%= i %>)"><i class="bi-printer"></i> Print</button>
+                  <button type="button" class="btn btn-success" onclick="finishOrder('<%= currentSchool %>', <%= row['Row'] %>)"><i class="bi-check"></i> Finish</button>
+                  <div id="print_row_<%= i %>" style="position: absolute; pointer-events: none; opacity: 0;">
+                    <% if (currentSchool == "Velez") { %>
+                      <%- include('template/dress.ejs', {row: row, headers: headers}) %>
+                    <% } else { %>
+                      <% if(row[headers[2]] == "Female") { %>
+                        <%- include('template/female.ejs', {row: row, headers: headers}) %>
+                      <% } else if(row[headers[2]] == "Male") { %>
+                        <%- include('template/male.ejs', {row: row, headers: headers}) %>
+                      <% } else { %>
+                        <%- include('template/other.ejs', {row: row, headers: headers}) %>
+                      <% } %>
+                    <% } %>
                   </div>
-                </div>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <nav aria-label="Page navigation">
-        <ul class="pagination custom-pagination">
-          <li class="page-item <% if (page == 1 ) { %>disabled<% } %>"><a class="page-link" onclick="prev()">Previous</a></li>
-          <% if (pages[0] > 1) { %>
-            <li class="page-item"><a class="page-link" onclick="changePage(1)">1</a></li>
-            <li class="page-item disabled"><a class="page-link">...</a></li>
-          <% } %>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <% if (pages[4] < totalPages) { %>
-            <li class="page-item disabled"><a class="page-link">...</a></li>
-            <li class="page-item"><a class="page-link" onclick="changePage(<%= totalPages %>)"><%= totalPages %></a></li>
-          <% } %>
-          <li class="page-item <% if (page == totalPages ) { %>disabled<% } %>"><a class="page-link" onclick="next()">Next</a></li>
-        </ul>
-      </nav>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="9" class="">
+                  <div id="row_<%= i %>" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                      <table class="table table-striped">
+                        <thead>
+                          <% if(currentSchool == "Velez") { %>
+                            <tr>
+                              <th scope="col">Dress</th>
+                            </tr>
+                          <% } else { %>
+                            <tr>
+                              <th scope="col">
+                                <% if(row[headers[2]] == "Female") { %>
+                                  <h3>Blouse</h3>
+                                <% } else if (row[headers[2]] == "Male") { %>
+                                  <h3>Polo</h3>
+                                <% } else { %>
+                                  <h3>Top</h3>
+                                <% } %>
+                              </th>
+                              <th scope="col"><h3>Pants</h3></th>
+                              <% if(row[headers[2]] == "Female" || !row[headers[2]]) { %>
+                                <th scope="col"><h3>Skirt</h3></th>
+                              <% } %>
+                              <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
+                                <th scope="col"><h3>Labgown</h3></th>
+                              <% } %>
+                            </tr>
+                          <% } %>
+                        </thead>
+                        <tbody>
+                          <% if (currentSchool == "Velez") { %>
+                            <tr>
+                              <td>
+                                <ul>
+                                  <% measurements.dress.forEach(measure => { %>
+                                    <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+                                  <% }) %>
+                                </ul>
+                              </td>
+                            </tr>
+                          <% } else { %>
+                            <tr>
+                              <td>
+                                <ul>
+                                  <% measurements.top.forEach(measure => { %>
+                                    <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+                                  <% }) %>
+                                </ul>
+                              </td>
+                              <td>
+                                <ul>
+                                  <% measurements.pants.forEach(measure => { %>
+                                    <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+                                  <% }) %>
+                                </ul>
+                              </td>
+                              <% if(row[headers[2]] == "Female" || !row[headers[2]]) { %>
+                                <td>
+                                  <ul>
+                                    <% measurements.skirt.forEach(measure => { %>
+                                      <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+                                    <% }) %>
+                                  </ul>
+                                </td>
+                              <% } %>
+                              <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
+                                <td>
+                                  <ul>
+                                    <% measurements.labGown.forEach(measure => { %>
+                                      <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+                                    <% }) %>
+                                  </ul>
+                                </td>
+                              <% } %>
+                            </tr>
+                          <% } %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } %>
+        <% if (pages.length > 0) { %>
+          <nav aria-label="Page navigation">
+            <ul class="pagination custom-pagination">
+              <li class="page-item <% if (page == 1 ) { %>disabled<% } %>"><a class="page-link" onclick="prev()">Previous</a></li>
+              <% if (pages[0] > 1) { %>
+                <li class="page-item"><a class="page-link" onclick="changePage(1)">1</a></li>
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+              <% } %>
+              <% pages.forEach(pageDisplay => { %>
+                <li class="page-item <% if (page == pageDisplay) { %>active<% } %>"><a class="page-link" onclick="changePage(<%= pageDisplay %>)"><%= pageDisplay %></a></li>
+              <% }) %>
+              <% if (pages[4] < totalPages) { %>
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+                <li class="page-item"><a class="page-link" onclick="changePage(<%= totalPages %>)"><%= totalPages %></a></li>
+              <% } %>
+              <li class="page-item <% if (page == totalPages ) { %>disabled<% } %>"><a class="page-link" onclick="next()">Next</a></li>
+            </ul>
+          </nav>
+        <% } %>
+      </div>
     </div>
   </div>
 
@@ -221,6 +264,10 @@
       </form>
     </div>
   </div>
+</div>
+
+<div id="loading-screen">
+  <img src="/assets/loading.gif" alt="loading">
 </div>
   <!-- 
   =================

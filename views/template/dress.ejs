@@ -1,0 +1,34 @@
+<style>
+  h1,h2,h3,h5 {
+    margin: 0;
+  }
+</style>
+
+<h5>NAME: <%= row[headers[0]] %></h5>
+<h5>YR & COURSE: <%= row[headers[4]] %></h5>
+<h5>DATE: <%= row[headers[3]] %></h5>
+<h5>GENDER: <%= row[headers[2]] %></h5>
+<h5>ORDER: <%= row[headers[5]] %></h5>
+<h5>CONTACT NUMBER: <%= row[headers[1]] %></h5><br>
+
+<h3>DRESS MEASUREMENT</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">
+          <h5>Dress</h5>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <ul>
+          <% measurements.dress.forEach(measure => { %>
+            <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+          <% }) %>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>

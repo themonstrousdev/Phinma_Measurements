@@ -9,7 +9,7 @@
 <h5>DATE: <%= row[headers[3]] %></h5>
 <h5>GENDER: <%= row[headers[2]] %></h5>
 <h5>ORDER: <%= row[headers[5]] %></h5>
-<h5>CONTACT NUMBER: <%= row[headers[1]] %></h5>
+<h5>CONTACT NUMBER: <%= row[headers[1]] %></h5><br>
 
 <h3>FEMALE MEASUREMENT</h3>
 <table class="table table-striped">
@@ -20,6 +20,9 @@
       </th>
       <th scope="col"><h5>Pants</h5></th>
       <th scope="col"><h5>Skirt</h5></th>
+      <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
+        <th scope="col"><h3>Labgown</h3></th>
+      <% } %>
     </tr>
   </thead>
   <tbody>
@@ -45,6 +48,15 @@
             <% }) %>
           </ul>
         </td>
+        <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
+          <td>
+            <ul>
+              <% measurements.labGown.forEach(measure => { %>
+                <li><b><%= measure[0] %></b> - <%= row[measure[1]] %></li>
+              <% }) %>
+            </ul>
+          </td>
+        <% } %>
     </tr>
   </tbody>
 </table>

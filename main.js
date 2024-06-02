@@ -10,6 +10,7 @@ const urlEncodedParser = bodyParser.urlencoded({extended: false});
 
 const path = require('path');
 const getData = require('./sheet').getData;
+const finishOrder = require('./sheet').finishOrder;
 const getSchools = require('./public/functions/manageSchools').getSchools;
 const addSchool = require('./public/functions/manageSchools').addSchool;
 const deleteSchool = require('./public/functions/manageSchools').deleteSchool;
@@ -34,6 +35,22 @@ const measurements = {
     ['Blouse Length', 'BL'],
     ['Other Remarks', 'Other Remarks (Top)'],
     ['Strand', 'Strand']
+  ],
+  dress: [
+    ['SH', 'SH - Dress'],
+    ['Hips', 'Hips - Dress'],
+    ['Dress Length', 'Dress Length'],
+    ['Bust', 'Bust - Dress'],
+    ['Waistline', 'Waistline - Dress'],
+    ['Bust Point', 'Bust Point - Dress'],
+    ['Waist', 'Waist - Dress'],
+    ['Figure', 'Figure - Dress'],
+    ['AH', 'Arm Hole - Dress'],
+    ['Sleeve Length', 'Sleeve Length - Dress']
+  ],
+  labGown: [
+    ['Sleeve Length', 'Labgown Sleeve length'],
+    ['Labgown Length', 'Labgown length']
   ],
   pants: [
     ['Waistline', 'Waistline (Pants)'],
@@ -85,27 +102,49 @@ router.get('/', async (req, res)=> {
 
     let sheetData = await getData(currentSchool, page, date, searchValue);
 
-    headers = sheetData.headers;
-    // get headers from 1 - 9
-    headers = headers.slice(1, 10);
-    data = sheetData.data;
-    totalPages = sheetData.totalPages;
-
-    // create pages array from totalPages
-    for(let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-
-    // get middle 5 pages
-    if(page > 3) {
-      if(page + 2 <= totalPages) {
-        pages = pages.slice(page - 3, page + 2);
+    if(!sheetData.empty) {
+      headers = sheetData.headers;
+      // get headers from 1 - 9
+      headers = headers.slice(1, 10);
+      data = sheetData.data;
+      totalPages = sheetData.totalPages;
+      
+      // create pages array from totalPages
+      for(let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+  
+      // get middle 5 pages
+      if(page > 3) {
+        if(page + 2 <= totalPages) {
+          pages = pages.slice(page - 3, page + 2);
+        } else {
+          pages = pages.slice(totalPages - 5, totalPages);
+        }
       } else {
-        pages = pages.slice(totalPages - 5, totalPages);
+        pages = pages.slice(0, 5);
       }
     } else {
-      pages = pages.slice(0, 5);
+      // redirect with same params but page is 1
+      let url = '/';
+
+      if(date) {
+        url += `${url == '/' ? '?' : '&'}date=${date}`;
+      }
+
+      if(searchValue) {
+        url += `${url == '/' ? '?' : '&'}search=${searchValue}`;
+      }
+
+      if(currentSchool) {
+        url += `${url == '/' ? '?' : '&'}school=${currentSchool}`;
+      }
+
+      res.redirect(url);
+
+      return;
     }
+
   }
   res.render('index', {schools: schools, currentSchool: currentSchool, data: data, headers: headers, measurements: measurements, page: page, totalPages: totalPages, pages, date: date, wordSearch: searchValue });
 })
@@ -129,6 +168,16 @@ router.post('/deleteSchool', jsonParser, async (req, res) => {
     res.status(200).send('School deleted!');
   } else {
     res.status(400).send('School does not exist!');
+  }
+});
+
+router.post('/finishOrder', jsonParser, async (req, res) => {
+  const {school, row} = req.body;
+  let result = await finishOrder(school, (parseInt(row) + 1));
+  if(result) {
+    res.status(200).send('Order finished!');
+  } else {
+    res.status(400).send('Order not found!');
   }
 });
 

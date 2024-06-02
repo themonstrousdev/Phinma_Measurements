@@ -9,8 +9,8 @@ const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = path.join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+const TOKEN_PATH = path.join(process.cwd(), '/confidentials/token.json');
+const CREDENTIALS_PATH = path.join(process.cwd(), '/confidentials/credentials.json');
 
 const CONFIG_PATH = path.join(process.cwd(), 'config.json');
 
@@ -98,7 +98,7 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
 
   const sheets = google.sheets({version: 'v4', auth});
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: config.sheetId,
+    spreadsheetId: config.readSheetId,
     range: `'${school}'!A${startRow}:AW${endRow}`,
   });
 
@@ -124,7 +124,7 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
 
 
   let headers = await sheets.spreadsheets.values.get({
-    spreadsheetId: config.sheetId,
+    spreadsheetId: config.readSheetId,
     range: `'${school}'!1:1`,
   });
 
@@ -133,11 +133,11 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
   const rows = res.data.values;
   if (!rows || rows.length === 0) {
     console.log('No data found.');
-    return;
+    return {empty: true, page};
   }
 
   let totalRows = await sheets.spreadsheets.values.get({
-    spreadsheetId: config.sheetId,
+    spreadsheetId: config.readSheetId,
     range: `'${school}'!A:A`,
   });
 
@@ -178,7 +178,7 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
 
   // find header that says sleeve length
   // rename it to just "Sleeve Length"
-  let sleeveLengthIndex = headers.findIndex(header => header.toLowerCase().includes("sleeve length"));
+  let sleeveLengthIndex = headers.findIndex(header => header.toLowerCase().startsWith("sleeve length"));
   headers[sleeveLengthIndex] = "Sleeve Length";
 
   // find header that starts with "BL"
@@ -199,6 +199,48 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
   return {data, headers, totalPages};
 }
 
+function getLastColumn(headers) {
+  let alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if(headers.length <= alpha.length) {
+    return alpha[headers.length - 1];
+  } else {
+    let first = alpha[Math.floor(headers.length / alpha.length) - 1];
+    let second = alpha[headers.length % alpha.length - 1];
+    return `${first}${second}`;
+  }
+}
+
+async function doneOrder(auth, school, row) {
+  const sheets = google.sheets({version: 'v4', auth});
+
+  let headers = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.readSheetId,
+    range: `'${school}'!1:1`,
+  });
+
+  headers = headers.data.values[0];
+
+  headers = headers.map(header => header.trim());
+
+  let lastColumn = getLastColumn(headers);
+
+  try {
+    const result = await sheets.spreadsheets.values.update({
+      spreadsheetId: config.writeSheetId,
+      range: `'${school}'!${lastColumn}${row}:${lastColumn}${row}`,
+      valueInputOption: 'RAW',
+      resource: {
+        values: [["Done"]]
+      }
+    });
+
+    return result.data.updatedCells;
+  } catch (err) {
+    console.log(err)
+    return null;
+  }
+}
+
 const getData =  async function(school, page, date) {
   let data = null;
   await authorize().then(async auth => {
@@ -208,4 +250,14 @@ const getData =  async function(school, page, date) {
   return data;
 }
 
+const finishOrder = async function(school, row) {
+  let result = null;
+  await authorize().then(async auth => {
+    result = await doneOrder(auth, school, row);
+  }).catch(console.error);
+
+  return result;
+}
+
 exports.getData = getData;
+exports.finishOrder = finishOrder;

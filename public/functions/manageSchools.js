@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const process = require('process');
 
-const SCHOOLS_PATH = path.join(process.cwd(), 'schools.json');
+const SCHOOLS_PATH = path.join(process.cwd(), '/confidentials/schools.json');
 
 async function getSchools() {
   const content = await fs.readFile(SCHOOLS_PATH);

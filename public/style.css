@@ -1,3 +1,29 @@
+html,
+body {
+    overflow: hidden;
+}
+
+html {
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+}
+
+body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#content {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
 ul {
     list-style-type: none;
     margin: 0;
@@ -11,4 +37,26 @@ ul {
 
 .custom-pagination .page-item:not(.disabeled) {
     cursor: pointer;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    display: none;
+    z-index: 99;
+}
+
+#loading-screen.show {
+    display: flex;
+}
+
+#loading-screen img {
+    height: 40px;
+    width: 40px;
 }

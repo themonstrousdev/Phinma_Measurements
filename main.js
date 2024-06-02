@@ -140,9 +140,11 @@ router.get('/', async (req, res)=> {
         url += `${url == '/' ? '?' : '&'}school=${currentSchool}`;
       }
 
-      res.redirect(url);
-
-      return;
+      if(page != 1) {
+        res.redirect(url);
+  
+        return;
+      }
     }
 
   }

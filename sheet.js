@@ -54,19 +54,24 @@ async function saveCredentials(client) {
  * Load or request or authorization to call APIs.
  *
  */
-async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
-  if (client) {
+async function authorize(renew = false) {
+  let client = null;
+  
+  if(!renew) {
+    client = await loadSavedCredentialsIfExist();
+    if (client) {
+      return client;
+    }
+  } else {
+    client = await authenticate({
+      scopes: SCOPES,
+      keyfilePath: CREDENTIALS_PATH,
+    });
+    if (client.credentials) {
+      await saveCredentials(client);
+    }
     return client;
   }
-  client = await authenticate({
-    scopes: SCOPES,
-    keyfilePath: CREDENTIALS_PATH,
-  });
-  if (client.credentials) {
-    await saveCredentials(client);
-  }
-  return client;
 }
 
 /**
@@ -245,7 +250,11 @@ const getData =  async function(school, page, date) {
   let data = null;
   await authorize().then(async auth => {
     data = await listMajors(auth, school, page, date)
-  }).catch(console.error);
+  }).catch(async err => {
+    console.log(err);
+    await renewToken();
+    data = {tokenRenewed: true}
+  });
 
   return data;
 }
@@ -259,5 +268,23 @@ const finishOrder = async function(school, row) {
   return result;
 }
 
+const renewToken = async function() {
+  // delete contents of token.json
+  await fs.writeFile(TOKEN_PATH, "");
+
+  // authorize again
+  await authorize(true);
+}
+
+// check if authorize function returns an error
+// if it does, call renewToken function
+const checkToken = async function() {
+  await authorize().catch(async err => {
+    console.log(err)
+    await renewToken();
+  });
+}
+
+exports.checkToken = checkToken;
 exports.getData = getData;
 exports.finishOrder = finishOrder;

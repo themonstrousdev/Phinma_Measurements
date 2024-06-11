@@ -2,13 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+const PORT = 8080;
 
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const urlEncodedParser = bodyParser.urlencoded({extended: false});
 
 const path = require('path');
+const { checkToken } = require('./sheet');
 const getData = require('./sheet').getData;
 const finishOrder = require('./sheet').finishOrder;
 const getSchools = require('./public/functions/manageSchools').getSchools;
@@ -102,7 +103,12 @@ router.get('/', async (req, res)=> {
 
     let sheetData = await getData(currentSchool, page, date, searchValue);
 
-    if(!sheetData.empty) {
+    if(sheetData.tokenRenewed) {
+      // refresh page with the same exact path
+      res.redirect(req.originalUrl);
+
+      return;
+    } else if(!sheetData.empty) {
       headers = sheetData.headers;
       // get headers from 1 - 9
       headers = headers.slice(1, 10);
@@ -183,10 +189,20 @@ router.post('/finishOrder', jsonParser, async (req, res) => {
   }
 });
 
-app.listen(PORT, err => {
-  if(!err) {
-    console.log(`Server running on ${PORT}.\n\tView Site: https://localhost:3000`);
-  } else {
-    console.log(`Server can't start.\nERROR: ${err}`)
+const start = async () => {
+  try {
+    await checkToken();
+    
+    app.listen(PORT, err => {
+      if(!err) {
+        console.log(`Server running on ${PORT}.\n\tView Site: https://localhost:${PORT}`);
+      } else {
+        console.log(`Server can't start.\nERROR: ${err}`)
+      }
+    });
+  } catch (err) {
+    console.log(`Error: ${err}`);
   }
-});
+}
+
+start();

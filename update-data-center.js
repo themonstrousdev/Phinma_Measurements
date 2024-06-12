@@ -48,12 +48,14 @@ checkToken().then(async () => {
           range: `'${sheet.properties.title}'!1:1`
         });
 
+        headers = headers.data.values[0];
         
         let firstCell = null;
         
         await workbook.spreadsheets.values.get({
           spreadsheetId: config.readSheetId,
-          range: `'${sheet.properties.title}'!A1`
+          range: `'${sheet.properties.title}'!A1`,
+          valueRenderOption: 'FORMULA'
         }).then((res) => {
           firstCell = res;
         }).catch(err => {
@@ -65,13 +67,14 @@ checkToken().then(async () => {
         });
 
         if(firstCell) {
-          headers = headers.data.values[0];
           firstCell = firstCell.data.values[0];
   
           // slice firs cell from the word "where" to the end of the string
-          firstCell = firstCell.slice(firstCell.indexOf('where'));
+          let query = firstCell.slice(firstCell.indexOf('where'));
+
+          console.log(firstCell);
   
-          let colNumber = firstCell.split(' ')[1];
+          let colNumber = query.split(' ')[1];
           let newCol = null;
   
           // check if last header is named 'Status'
@@ -129,7 +132,7 @@ checkToken().then(async () => {
           }
   
           // if there is a new column, replace the old column with the new column and update the value of the first cell in the sheet
-          if(newCol) {
+          if(newCol != colNumber) {
             firstCell = firstCell.replace(colNumber, newCol);
   
             try {
@@ -146,6 +149,8 @@ checkToken().then(async () => {
             } catch (err) {
               console.log(err);
             }
+          } else {
+            console.log(`Sheet: ${sheet.properties.title} is up to date`);
           }
         } else if (firstCell === undefined) {
           // create sheet in read file

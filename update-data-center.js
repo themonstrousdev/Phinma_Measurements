@@ -33,7 +33,7 @@ checkToken().then(async () => {
   // compare the number of headers and the first Col number in the first cell
   // if they are not equal, print the sheet name
 
-  await authorize
+  await authorize()
     .then(async (auth) => {
       const workbook = google.sheets({version: 'v4', auth});
 

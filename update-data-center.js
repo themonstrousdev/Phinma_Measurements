@@ -54,7 +54,7 @@ checkToken().then(async () => {
         
         await workbook.spreadsheets.values.get({
           spreadsheetId: config.readSheetId,
-          range: `'${sheet.properties.title}'!A1`,
+          range: `'${sheet.properties.title.trim()}'!A1`,
           valueRenderOption: 'FORMULA'
         }).then((res) => {
           firstCell = res;
@@ -138,7 +138,7 @@ checkToken().then(async () => {
             try {
               await workbook.spreadsheets.values.update({
                 spreadsheetId: config.readSheetId,
-                range: `'${sheet.properties.title}'!A1`,
+                range: `'${sheet.properties.title.trim()}'!A1`,
                 valueInputOption: 'USER_ENTERED',
                 resource: {
                   values: [[firstCell]]
@@ -162,7 +162,7 @@ checkToken().then(async () => {
                   {
                     addSheet: {
                       properties: {
-                        title: sheet.properties.title
+                        title: sheet.properties.title.trim()
                       }
                     }
                   }
@@ -249,8 +249,6 @@ checkToken().then(async () => {
           }
         }
       });
-
-      console.log('All sheets have been updated');
     })
     .catch(console.error);
 

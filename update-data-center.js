@@ -26,14 +26,14 @@ const excelRows = [
   'DV', 'DW', 'DX', 'DY', 'DZ', 'EA', 'EB', 'EC',
 ]
 
-checkToken().then(() => {
+checkToken().then(async () => {
   // go through each sheet in the write file
   // get the heaaders only
   // get value of the first cell in the read file
   // compare the number of headers and the first Col number in the first cell
   // if they are not equal, print the sheet name
 
-  authorize
+  await authorize
     .then(async (auth) => {
       const workbook = google.sheets({version: 'v4', auth});
 

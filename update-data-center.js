@@ -179,9 +179,9 @@ checkToken().then(async () => {
           let column = null;
 
           if(headers[headers.length - 1] === 'Status') {
-            newCol = `Col${headers.length}`;
+            column = `Col${headers.length}`;
           } else if (headers[headers.length - 1] === 'Row') {
-            newCol = `Col${headers.length + 1}`;
+            column = `Col${headers.length + 1}`;
             let statusColumn = excelRows[headers.length];
             // add 'Status' column in write sheet
             try {
@@ -198,7 +198,7 @@ checkToken().then(async () => {
             }
 
           } else {
-            newCol = `Col${headers.length + 2}`;
+            column = `Col${headers.length + 2}`;
             // add 'Row' and 'Status' column in write sheet
             let statusColumn = excelRows[headers.length + 1];
             let rowColumn = excelRows[headers.length];

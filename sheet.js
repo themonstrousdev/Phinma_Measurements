@@ -62,16 +62,16 @@ async function authorize(renew = false) {
     if (client) {
       return client;
     }
-  } else {
-    client = await authenticate({
-      scopes: SCOPES,
-      keyfilePath: CREDENTIALS_PATH,
-    });
-    if (client.credentials) {
-      await saveCredentials(client);
-    }
-    return client;
+  } 
+
+  client = await authenticate({
+    scopes: SCOPES,
+    keyfilePath: CREDENTIALS_PATH,
+  });
+  if (client.credentials) {
+    await saveCredentials(client);
   }
+  return client;
 }
 
 /**
@@ -285,6 +285,8 @@ const checkToken = async function() {
   });
 }
 
+exports.authorize = authorize;
+exports.getLastColumn = getLastColumn;
 exports.checkToken = checkToken;
 exports.getData = getData;
 exports.finishOrder = finishOrder;

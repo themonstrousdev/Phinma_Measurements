@@ -231,7 +231,7 @@ checkToken().then(async () => {
             }
           }
 
-          let firstCellNew = `=arrayformula(query(to_text(IMPORTRANGE("https://docs.google.com/spreadsheets/d/${config.writeSheetId}", "'${sheets.properties.title}'!A1:ZZ")), "select * where ${column} != 'Done'",1))`;
+          let firstCellNew = `=arrayformula(query(to_text(IMPORTRANGE("https://docs.google.com/spreadsheets/d/${config.writeSheetId}", "'${sheet.properties.title}'!A1:ZZ")), "select * where ${column} != 'Done'",1))`;
           
           try {
             await workbook.spreadsheets.values.update({

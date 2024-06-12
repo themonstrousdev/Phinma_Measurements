@@ -244,6 +244,8 @@ checkToken().then(() => {
           }
         }
       });
+
+      console.log('All sheets have been updated');
     })
     .catch(console.error);
 

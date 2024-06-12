@@ -67,7 +67,7 @@ checkToken().then(async () => {
         });
 
         if(firstCell) {
-          firstCell = firstCell.data.values[0];
+          firstCell = firstCell.data.values[0][0];
   
           // slice firs cell from the word "where" to the end of the string
           let query = firstCell.slice(firstCell.indexOf('where'));

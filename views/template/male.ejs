@@ -21,8 +21,8 @@
         <h5>Polo</h5>
       </th>
       <th scope="col"><h5>Pants</h5></th>
-      <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
-        <th scope="col"><h3>Labgown</h3></th>
+      <% if((row['Labgown? (Skirt)'] && row['Labgown? (Skirt)'] != '') || (row['Labgown? (Pants)'] && row['Labgown? (Pants)'] != '')) { %>
+        <th scope="col"><h5>Labgown</h5></th>
       <% } %>
     </tr>
   </thead>
@@ -42,7 +42,7 @@
           <% }) %>
         </ul>
       </td>
-      <% if(row['Labgown? (Skirt)'] != '' || row['Labgown? (Pants)'] != '') { %>
+      <% if((row['Labgown? (Skirt)'] && row['Labgown? (Skirt)'] != '') || (row['Labgown? (Pants)'] && row['Labgown? (Pants)'] != '')) { %>
         <td>
           <ul>
             <% measurements.labGown.forEach(measure => { %>

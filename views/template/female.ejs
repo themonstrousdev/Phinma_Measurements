@@ -12,6 +12,8 @@
 <h5>GENDER: <%= row[headers[2]] %></h5>
 <h5>ORDER: <%= row[headers[5]] %></h5>
 <h5>CONTACT NUMBER: <%= row[headers[1]] %></h5><br>
+<%if row['Size - Upper'] { %> <h5>SIZE - UPPER: <%= row['Size - Upper'] %></h5><br><% } %>
+<%if row['Size - Lower'] { %> <h5>SIZE - LOWER: <%= row['Size - Lower'] %></h5><br><% } %>
 
 <h3>FEMALE MEASUREMENT</h3>
 <table class="table table-striped">

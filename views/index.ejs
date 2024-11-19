@@ -57,7 +57,7 @@
         <div class="d-flex w-75 align-items-center justify-content-end">
           <input type="date" class="form-control w-25" id="filterDate" placeholder="Date" aria-label="date" onchange="filterDate()" <% if (date) { %>value="<%= date %>" <% } %>>
           <button type="button" class="btn btn-primary ms-3" onclick="window.href = '/<% if (currentSchool) { %>?school=<%= currentSchool %><% } %>'">Clear Date Filter</button>
-          <input type="text" class="form-control w-25 ms-3" id="filterSearch" placeholder="Search" aria-label="search" onenter="filterSearch()" <% if (date) { %> value="<%= wordSearch %>" <% } %>>
+          <!-- <input type="text" class="form-control w-25 ms-3" id="filterSearch" placeholder="Search" aria-label="search" onenter="filterSearch()" <% if (date) { %> value="<%= wordSearch %>" <% } %>> -->
           <button type="button" class="btn btn-primary ms-3" onclick="filterSearch()"><i class="bi-search"></i>Search</button>
         </div>
       </div>

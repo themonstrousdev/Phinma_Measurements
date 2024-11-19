@@ -85,14 +85,14 @@
                   <button type="button" class="btn btn-success" onclick="finishOrder('<%= currentSchool %>', <%= row['Row'] %>)"><i class="bi-check"></i> Finish</button>
                   <div id="print_row_<%= i %>" style="position: absolute; pointer-events: none; opacity: 0;">
                     <% if (currentSchool == "Velez") { %>
-                      <%- include('template/dress.ejs', {row: row, headers: headers}) %>
+                      <%- include('template/dress.ejs', {row: row, headers: headers, currentSchool: currentSchool, measurements: measurements}); %>
                     <% } else { %>
                       <% if(row[headers[2]] == "Female") { %>
-                        <%- include('template/female.ejs', {row: row, headers: headers}) %>
+                        <%- include('template/female.ejs', {row: row, headers: headers, currentSchool: currentSchool, measurements: measurements}); %>
                       <% } else if(row[headers[2]] == "Male") { %>
-                        <%- include('template/male.ejs', {row: row, headers: headers}) %>
+                        <%- include('template/male.ejs', {row: row, headers: headers, currentSchool: currentSchool, measurements: measurements}); %>
                       <% } else { %>
-                        <%- include('template/other.ejs', {row: row, headers: headers}) %>
+                        <%- include('template/other.ejs', {row: row, headers: headers, currentSchool: currentSchool, measurements: measurements}); %>
                       <% } %>
                     <% } %>
                   </div>

@@ -59,15 +59,20 @@ async function authorize(renew = false) {
   
   if(!renew) {
     client = await loadSavedCredentialsIfExist();
+
     if (client) {
+      console.log("Client exists");
       return client;
     }
   } 
 
-  client = await authenticate({
-    scopes: SCOPES,
-    keyfilePath: CREDENTIALS_PATH,
-  });
+  if(!client || renew) {
+    client = await authenticate({
+      scopes: SCOPES,
+      keyfilePath: CREDENTIALS_PATH,
+    });
+  }
+
   if (client.credentials) {
     await saveCredentials(client);
   }
@@ -83,6 +88,8 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
   const orders = 15;
   let startRow = 2 + (page - 1) * orders;
   let endRow = startRow + orders - 1;
+
+  console.log(search);
 
   if(date) {
     startRow = 2;
@@ -146,7 +153,6 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
     range: `'${school}'!A:A`,
   });
 
-
   totalRows = totalRows.data.values;
 
   if(date) {
@@ -157,7 +163,7 @@ async function listMajors(auth, school, page = 1, date = null, search = null) {
     totalRows = totalRows.filter(row => row.some(cell => cell.toLowerCase().includes(search.toLowerCase())));
   }
 
-  totalRows = totalRows.length - 1;
+  totalRows = totalRows ? totalRows.length - 1 : 0;
 
   let totalPages = Math.ceil(totalRows / orders);
 
@@ -254,9 +260,11 @@ const getData =  async function(school, page, date) {
     console.log(err);
     if(err.code == 429) {
       data = {rateLimit: true}
-    } else {
+    } else if(err.code == 401) {
       await renewToken(true);
       data = {tokenRenewed: true}
+    } else {
+      data = null;
     }
   });
 
@@ -281,6 +289,7 @@ const finishOrder = async function(school, row) {
 }
 
 const renewToken = async function() {
+  console.log("Renewing token...")
   // delete contents of token.json
   await fs.writeFile(TOKEN_PATH, "");
 

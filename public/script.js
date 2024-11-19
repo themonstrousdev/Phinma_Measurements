@@ -76,6 +76,10 @@ function finishOrder(school, row) {
     if(res.status == 200) {
       alert('Order finished!');
       location.reload();
+    } else if (res.status == 429) {
+      alert('Rate limited. Please try again after 3-5 minutes. This is a free Google API account limitation.');
+    } else if (res.status == 403) {
+      alert('Your login has expired but your token has been renewed. Please refresh your page and try again.');
     } else {
       alert('Error finishing order!');
     }

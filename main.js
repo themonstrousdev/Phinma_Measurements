@@ -103,7 +103,11 @@ router.get('/', async (req, res)=> {
 
     let sheetData = await getData(currentSchool, page, date, searchValue);
 
-    if(sheetData.tokenRenewed) {
+    if(sheetData.rateLimit) {
+      res.send("Rate limited! Google API has detected that you have exceeded the allowed requests per minute per user due to the fact that you are on a free license. Please refresh in 3-5 minutes.")
+
+      return;
+    } else if(sheetData.tokenRenewed) {
       // refresh page with the same exact path
       res.redirect(req.originalUrl);
 
@@ -182,7 +186,11 @@ router.post('/deleteSchool', jsonParser, async (req, res) => {
 router.post('/finishOrder', jsonParser, async (req, res) => {
   const {school, row} = req.body;
   let result = await finishOrder(school, (parseInt(row) + 1));
-  if(result) {
+  if(result.rateLimit) {
+    res.status(429).send('Rate limited')
+  } else if(result.tokenRenewed) {
+    res.status(403).send('Token renewed')
+  } else if(result) {
     res.status(200).send('Order finished!');
   } else {
     res.status(400).send('Order not found!');

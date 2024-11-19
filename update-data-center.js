@@ -49,6 +49,12 @@ checkToken().then(async () => {
         });
 
         headers = headers.data.values[0];
+        let dataHeaders = headers;
+
+        if(dataHeaders[0] != "Timestamp") {
+          // remove all headers before timestamp
+          dataHeaders = dataHeaders.slice(dataHeaders.indexOf("Timestamp"));
+        }
         
         let firstCell = null;
         
@@ -71,17 +77,15 @@ checkToken().then(async () => {
   
           // slice firs cell from the word "where" to the end of the string
           let query = firstCell.slice(firstCell.indexOf('where'));
-
-          console.log(firstCell);
   
           let colNumber = query.split(' ')[1];
           let newCol = null;
   
           // check if last header is named 'Status'
           if(headers[headers.length - 1] === 'Status') {
-            newCol = `Col${headers.length}`;
+            newCol = `Col${dataHeaders.length}`;
           } else if (headers[headers.length - 1] === 'Row') {
-            newCol = `Col${headers.length + 1}`;
+            newCol = `Col${dataHeaders.length + 1}`;
             let statusColumn = excelRows[headers.length];
             // add 'Status' column in write sheet
             try {
@@ -98,7 +102,7 @@ checkToken().then(async () => {
             }
 
           } else {
-            newCol = `Col${headers.length + 2}`;
+            newCol = `Col${dataHeaders.length + 2}`;
             // add 'Row' and 'Status' column in write sheet
             let statusColumn = excelRows[headers.length + 1];
             let rowColumn = excelRows[headers.length];
@@ -179,9 +183,9 @@ checkToken().then(async () => {
           let column = null;
 
           if(headers[headers.length - 1] === 'Status') {
-            column = `Col${headers.length}`;
+            column = `Col${dataHeaderseaders.length}`;
           } else if (headers[headers.length - 1] === 'Row') {
-            column = `Col${headers.length + 1}`;
+            column = `Col${dataHeaderseaders.length + 1}`;
             let statusColumn = excelRows[headers.length];
             // add 'Status' column in write sheet
             try {
@@ -198,7 +202,7 @@ checkToken().then(async () => {
             }
 
           } else {
-            column = `Col${headers.length + 2}`;
+            column = `Col${dataHeaderseaders.length + 2}`;
             // add 'Row' and 'Status' column in write sheet
             let statusColumn = excelRows[headers.length + 1];
             let rowColumn = excelRows[headers.length];
@@ -231,7 +235,9 @@ checkToken().then(async () => {
             }
           }
 
-          let firstCellNew = `=arrayformula(query(to_text(IMPORTRANGE("https://docs.google.com/spreadsheets/d/${config.writeSheetId}", "'${sheet.properties.title}'!A1:ZZ")), "select * where ${column} != 'Done'",1))`;
+          let firstDataColumn = excelRows[headers.indexOf('Timestamp')];
+
+          firstCellNew = `=arrayformula(query(to_text(IMPORTRANGE("https://docs.google.com/spreadsheets/d/${config.writeSheetId}", "'${sheet.properties.title}'!${firstDataColumn}1:ZZ")), "select * where ${column} != 'Done'",1))`;
           
           try {
             await workbook.spreadsheets.values.update({

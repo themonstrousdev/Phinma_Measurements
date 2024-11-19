@@ -252,8 +252,12 @@ const getData =  async function(school, page, date) {
     data = await listMajors(auth, school, page, date)
   }).catch(async err => {
     console.log(err);
-    await renewToken();
-    data = {tokenRenewed: true}
+    if(err.code == 429) {
+      data = {rateLimit: true}
+    } else {
+      await renewToken(true);
+      data = {tokenRenewed: true}
+    }
   });
 
   return data;
@@ -263,7 +267,15 @@ const finishOrder = async function(school, row) {
   let result = null;
   await authorize().then(async auth => {
     result = await doneOrder(auth, school, row);
-  }).catch(console.error);
+  }).catch(async err => {
+    console.log(err);
+    if(err.code == 429) {
+      result = {rateLimit: true}
+    } else {
+      await renewToken(true);
+      result = {tokenRenewed: true}
+    }
+  });
 
   return result;
 }

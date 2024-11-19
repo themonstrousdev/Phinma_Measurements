@@ -1,0 +1,23 @@
+{
+  "name": "phinma_measurements",
+  "version": "1.0.0",
+  "description": "clothes measurement internal usage",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon main.js"
+  },
+  "author": "Elle Tagupa (themonstrousdev)",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "google-auth-library": "^9.10.0",
+    "googleapis": "^105.0.0"
+  },
+  "devDependencies": {
+    "ejs-lint": "^2.0.0"
+  }
+}
